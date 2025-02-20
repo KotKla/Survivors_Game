@@ -1,13 +1,14 @@
 from objects import *
 
+
 def main():
     pygame.init()
     size = 500, 500
     screen = pygame.display.set_mode(size)
     pygame.display.set_caption('Survivors')
 
-    character = Character()
-    enemy = Enemy()
+    character = Character(200, 200)
+    enemy = Enemy(0, 0)
 
     clock = pygame.time.Clock()
     running = True
@@ -32,11 +33,11 @@ def main():
             #     if event.key == pygame.K_4:
             #             character.add_item(3)
 
-        for obj in objects_of_game:
-            if type(obj) is Enemy:
-                obj.update(character.rect.x + character.rect.w // 2, character.rect.y + character.rect.h // 2)
+        for sprite in all_sprites:
+            if type(sprite) is Enemy:
+                sprite.update(character.rect.x + character.rect.w // 2, character.rect.y + character.rect.h // 2)
             else:
-                obj.update()
+                sprite.update()
 
         screen.fill('black')
         all_sprites.draw(screen)

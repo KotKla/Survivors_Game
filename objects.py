@@ -3,26 +3,30 @@ from math import ceil
 from random import choice
 
 all_sprites = pygame.sprite.Group()
-objects_of_game = []
+character_sprites = pygame.sprite.Group()
+enemy_sprites = pygame.sprite.Group()
+attack_sprites = pygame.sprite.Group()
 
 
 class Object(pygame.sprite.Sprite):
     def __init__(self, x=100, y=100, w=100, h=100):
         super().__init__(all_sprites)
-        objects_of_game.append(self)
         self.image = pygame.Surface((w, h))
         self.image.fill('gray')
         self.rect = pygame.Rect(x, y, w, h)
 
+        self.cooldown = 0
         self.speed = 1
         self.health = 100
         self.dx = 0
         self.dy = 0
+        self.way = []
 
 
 class Character(Object):
     def __init__(self, *args):
         super().__init__(*args)
+        self.add(character_sprites)
         self.image.fill('green')
         self.experience = 0
         self.items = {Attack: {'level': 1, 'time': 0}}
@@ -36,7 +40,19 @@ class Character(Object):
                 self.items[item]['time'] = 60
                 item(self.rect.x, self.rect.y, )
 
-        self.rect.move_ip(self.dx * self.speed, self.dy * self.speed)
+        if 0 in (self.dx, self.dy):
+            self.rect.move_ip(self.dx * self.speed, self.dy * self.speed)
+
+        elif self.way:
+            x, y = self.way.pop()
+            self.rect.move_ip(x * self.speed, y * self.speed)
+
+        else:
+            self.way = [(self.dx, 0), (self.dx, self.dy), (0, self.dy), (self.dx, self.dy)]
+
+        self.cooldown -= 1
+        if self.health < 0:
+            print('ded')
 
     def move(self, direction, movement):
         velocity = 1 if movement else -1
@@ -60,8 +76,8 @@ class Character(Object):
 class Enemy(Object):
     def __init__(self, *args):
         super().__init__(*args)
+        self.add(enemy_sprites)
         self.image.fill('red')
-        self.way = []
 
     def update(self, char_x, char_y):
         enemy_x = self.rect.x + self.rect.w // 2
@@ -107,11 +123,16 @@ class Enemy(Object):
         self.dx, self.dy = self.way.pop(0)
         self.rect.move_ip(self.dx * self.speed, self.dy * self.speed)
 
+        char = pygame.sprite.spritecollideany(self, character_sprites)
+        if char and char.cooldown < 0:
+            char.health -= 34
+            char.cooldown = 120
+
 
 class Attack(Object):
     def __init__(self, *args):
         super().__init__(*args)
-        objects_of_game.append(self)
+        self.add(attack_sprites)
         self.image = pygame.Surface((50, 50))
         self.image.fill('blue')
         self.rect = pygame.Rect(self.rect.x + 25, self.rect.y + 25, 50, 50)
