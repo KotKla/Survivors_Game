@@ -34,8 +34,13 @@ def main():
             #             character.add_item(3)
 
         for sprite in all_sprites:
-            if type(sprite) is Enemy:
+            if sprite.health < 0:
+                all_sprites.remove(sprite)
+                del sprite
+
+            elif type(sprite) is Enemy:
                 sprite.update(character.rect.x + character.rect.w // 2, character.rect.y + character.rect.h // 2)
+
             else:
                 sprite.update()
 

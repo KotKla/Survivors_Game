@@ -51,8 +51,6 @@ class Character(Object):
             self.way = [(self.dx, 0), (self.dx, self.dy), (0, self.dy), (self.dx, self.dy)]
 
         self.cooldown -= 1
-        if self.health < 0:
-            print('ded')
 
     def move(self, direction, movement):
         velocity = 1 if movement else -1
@@ -128,6 +126,8 @@ class Enemy(Object):
             char.health -= 34
             char.cooldown = 120
 
+        self.cooldown -= 1
+
 
 class Attack(Object):
     def __init__(self, *args):
@@ -150,3 +150,8 @@ class Attack(Object):
 
         else:
             self.way = [(self.dx, 0), (self.dx, self.dy), (0, self.dy), (self.dx, self.dy)]
+
+        enemy = pygame.sprite.spritecollideany(self, enemy_sprites)
+        if enemy and enemy.cooldown < 0:
+            enemy.health -= 34
+            enemy.cooldown = 120
