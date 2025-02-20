@@ -1,4 +1,3 @@
-import pygame
 from objects import *
 
 def main():
@@ -23,15 +22,15 @@ def main():
             if event.type == pygame.KEYUP and event.key in (pygame.K_a, pygame.K_w, pygame.K_d, pygame.K_s):
                 character.move(event.key, False)
 
-            if event.type == pygame.KEYDOWN and event.key in (pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4):
-                if event.key == pygame.K_1:
-                    character.add_item(0)
-                if event.key == pygame.K_2:
-                        character.add_item(1)
-                if event.key == pygame.K_3:
-                        character.add_item(2)
-                if event.key == pygame.K_4:
-                        character.add_item(3)
+            # if event.type == pygame.KEYDOWN and event.key in (pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4):
+            #     if event.key == pygame.K_1:
+            #         character.add_item(0)
+            #     if event.key == pygame.K_2:
+            #             character.add_item(1)
+            #     if event.key == pygame.K_3:
+            #             character.add_item(2)
+            #     if event.key == pygame.K_4:
+            #             character.add_item(3)
 
         for obj in objects_of_game:
             if type(obj) is Enemy:

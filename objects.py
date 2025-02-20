@@ -1,5 +1,6 @@
 import pygame
 from math import ceil
+from random import choice
 
 all_sprites = pygame.sprite.Group()
 objects_of_game = []
@@ -15,7 +16,6 @@ class Object(pygame.sprite.Sprite):
 
         self.speed = 1
         self.health = 100
-        self.experience = 0
         self.dx = 0
         self.dy = 0
 
@@ -24,9 +24,18 @@ class Character(Object):
     def __init__(self, *args):
         super().__init__(*args)
         self.image.fill('green')
-        self.items = {}
+        self.experience = 0
+        self.items = {Attack: {'level': 1, 'time': 0}}
 
     def update(self):
+        for item in self.items.keys():
+            if self.items[item]['time']:
+                self.items[item]['time'] -= 1
+
+            else:
+                self.items[item]['time'] = 60
+                item(self.rect.x, self.rect.y, )
+
         self.rect.move_ip(self.dx * self.speed, self.dy * self.speed)
 
     def move(self, direction, movement):
@@ -41,11 +50,11 @@ class Character(Object):
         elif direction == pygame.K_s:
             self.dy += velocity
 
-    def add_item(self, item):
-        if item in self.items.keys():
-            self.items[item]['level'] += 1
-        else:
-            self.items[item] = {'level': 1, 'time': 0}
+    # def add_item(self, item):
+    #     if item in self.items.keys():
+    #         self.items[item]['level'] += 1
+    #     else:
+    #         self.items[item] = {'level': 1, 'time': 0}
 
 
 class Enemy(Object):
@@ -97,3 +106,26 @@ class Enemy(Object):
 
         self.dx, self.dy = self.way.pop(0)
         self.rect.move_ip(self.dx * self.speed, self.dy * self.speed)
+
+
+class Attack(Object):
+    def __init__(self, *args):
+        super().__init__(*args)
+        objects_of_game.append(self)
+        self.image = pygame.Surface((50, 50))
+        self.image.fill('blue')
+        self.rect = pygame.Rect(self.rect.x + 25, self.rect.y + 25, 50, 50)
+        self.dx = choice([-1, 0, 1])
+        self.dy = choice([-1, 1]) if self.dx == 0 else choice([-1, 0, 1])
+        self.way = [(self.dx, 0), (self.dx, self.dy), (0, self.dy), (self.dx, self.dy)]
+
+    def update(self):
+        if 0 in (self.dx, self.dy):
+            self.rect.move_ip(self.dx * self.speed, self.dy * self.speed)
+
+        elif self.way:
+            x, y = self.way.pop()
+            self.rect.move_ip(x * self.speed, y * self.speed)
+
+        else:
+            self.way = [(self.dx, 0), (self.dx, self.dy), (0, self.dy), (self.dx, self.dy)]
