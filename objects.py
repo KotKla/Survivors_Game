@@ -1,16 +1,16 @@
 import pygame
 from math import ceil
 from random import choice
+from other import *
 
-all_sprites = pygame.sprite.Group()
 character_sprites = pygame.sprite.Group()
 enemy_sprites = pygame.sprite.Group()
 attack_sprites = pygame.sprite.Group()
 
 
-class Object(pygame.sprite.Sprite):
+class Object(AnimatedSprite):
     def __init__(self, x=100, y=100, w=100, h=100):
-        super().__init__(all_sprites)
+        super().__init__()
         self.image = pygame.Surface((w, h))
         self.image.fill('gray')
         self.rect = pygame.Rect(x, y, w, h)
@@ -27,7 +27,7 @@ class Character(Object):
     def __init__(self, *args):
         super().__init__(*args)
         self.add(character_sprites)
-        self.image.fill('green')
+        self.image.fill(load_image("run.png"))
         self.experience = 0
         self.items = {Attack: {'level': 1, 'time': 0}}
 
