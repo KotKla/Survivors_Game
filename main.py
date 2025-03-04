@@ -1,67 +1,53 @@
 from objects import *
 from other import *
-import sys
-
-pygame.init()
-size = width, height = 1080, 720
-screen = pygame.display.set_mode(size)
 
 
-def terminate():
-    pygame.quit()
-    sys.exit()
+def show_screen(screen, state):
+    if state:
+        text = f'Счёт: {results['max_count']}'
 
+    else:
+        text = 'ВЫЖИВАНИЕ В КИБЕРПАНКЕ'
 
-def end_screen(count):
-    fon = pygame.transform.scale(load_image('start.jfif'), size)
-    intro_text = f"счет:{count}"
-    screen.blit(fon, (0, 0))
-    x = width / 2
-    y = height / 2 - height / 10
-    draw_text(x - 2, y - 2, intro_text, "black", 40, screen)
-    draw_text(x + 2, y - 2, intro_text, "black", 40, screen)
-    draw_text(x - 2, y + 2, intro_text, "black", 40, screen)
-    draw_text(x + 2, y + 2, intro_text, "black", 40, screen)
-    draw_text(x, y, intro_text, "cyan", 40, screen)
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                terminate()
-
-        pygame.display.flip()
-
-
-def start_screen():
-    fon = pygame.transform.scale(load_image('start.jfif'), size)
-    screen.blit(fon, (0, 0))
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                terminate()
-            elif event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
-                return
-        pygame.display.flip()
-
-
-start_screen()
+    background = pygame.transform.scale(load_image('background.jpg'), screen.get_size())
+    screen.blit(background, (0, 0))
+    x = screen.get_size()[0] / 2
+    y = screen.get_size()[1] / 2 - screen.get_size()[1] / 10
+    draw_outline_text(screen, text, 'cyan', x, y, 40, 2)
+    pygame.display.flip()
 
 
 def main():
-    pygame.display.set_caption('Survivors')
+    pygame.init()
+    size = width, height = 1080, 720
+    screen = pygame.display.set_mode(size)
+    pygame.display.set_caption('ВЫЖИВАНИЕ В КИБЕРПАНКЕ')
+    show_screen(screen, 0)
+
+    clock = pygame.time.Clock()
+    running = True
+    state = 0
+
+    while state in (0, 2):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                if state == 0:
+                    state = 1
+
+                else:
+                    state = 0
+                    show_screen(screen, state)
 
     character = Character(200, 200)
     enemy = Enemy(0, 0)
 
-    clock = pygame.time.Clock()
-    count = 0
-    running = True
-    while running:
-
+    while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                break
 
             if event.type == pygame.KEYDOWN and event.key in (pygame.K_a, pygame.K_w, pygame.K_d, pygame.K_s):
                 character.move(event.key, True)
@@ -69,29 +55,21 @@ def main():
             if event.type == pygame.KEYUP and event.key in (pygame.K_a, pygame.K_w, pygame.K_d, pygame.K_s):
                 character.move(event.key, False)
 
-            # if event.type == pygame.KEYDOWN and event.key in (pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4):
-            #     if event.key == pygame.K_1:
-            #         character.add_item(0)
-            #     if event.key == pygame.K_2:
-            #             character.add_item(1)
-            #     if event.key == pygame.K_3:
-            #             character.add_item(2)
-            #     if event.key == pygame.K_4:
-            #             character.add_item(3)
-
         for sprite in all_sprites:
-            if type(sprite) is Enemy:
+            if type(sprite) is Enemy and sprite.health < 0:
+                state = 2
+                break
+
+            elif sprite.health < 0:
+                all_sprites.remove(sprite)
+                del sprite
+
+            elif type(sprite) is Enemy:
                 sprite.update(character.rect.x + character.rect.w // 2, character.rect.y + character.rect.h // 2)
+
             else:
                 sprite.update()
-        for sprite in enemy_sprites:
-            if sprite.health < 0:
-                all_sprites.remove(sprite)
-                count += 1
-                del sprite
-        for sprite in character_sprites:
-            if sprite.health < 0:
-                end_screen(count)
+
         screen.fill('black')
         all_sprites.draw(screen)
         pygame.display.flip()
