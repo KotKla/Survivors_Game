@@ -3,14 +3,13 @@ from math import ceil
 from random import choice
 from other import *
 
-character_sprites = pygame.sprite.Group()
-enemy_sprites = pygame.sprite.Group()
+all_sprites = pygame.sprite.Group()
 attack_sprites = pygame.sprite.Group()
 
 
-class Object(AnimatedSprite):
+class Object(pygame.sprite.Sprite):
     def __init__(self, x=100, y=100, w=100, h=100):
-        super().__init__()
+        super().__init__(all_sprites)
         self.image = pygame.Surface((w, h))
         self.image.fill('gray')
         self.rect = pygame.Rect(x, y, w, h)
@@ -27,7 +26,7 @@ class Character(Object):
     def __init__(self, *args):
         super().__init__(*args)
         self.add(character_sprites)
-        self.image.fill(load_image("run.png"))
+        self.image = load_image("hurt.png")
         self.experience = 0
         self.items = {Attack: {'level': 1, 'time': 0}}
 
@@ -51,6 +50,8 @@ class Character(Object):
             self.way = [(self.dx, 0), (self.dx, self.dy), (0, self.dy), (self.dx, self.dy)]
 
         self.cooldown -= 1
+        if self.health < 0:
+            print('ded')
 
     def move(self, direction, movement):
         velocity = 1 if movement else -1
@@ -75,8 +76,7 @@ class Enemy(Object):
     def __init__(self, *args):
         super().__init__(*args)
         self.add(enemy_sprites)
-        self.image.fill('red')
-
+        self.image = load_image("enemy.png ")
     def update(self, char_x, char_y):
         enemy_x = self.rect.x + self.rect.w // 2
         enemy_y = self.rect.y + self.rect.h // 2
@@ -134,7 +134,7 @@ class Attack(Object):
         super().__init__(*args)
         self.add(attack_sprites)
         self.image = pygame.Surface((50, 50))
-        self.image.fill('blue')
+        self.image = load_image("1.png")
         self.rect = pygame.Rect(self.rect.x + 25, self.rect.y + 25, 50, 50)
         self.dx = choice([-1, 0, 1])
         self.dy = choice([-1, 1]) if self.dx == 0 else choice([-1, 0, 1])
